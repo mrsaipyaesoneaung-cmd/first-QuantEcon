@@ -6,7 +6,10 @@ from collections import namedtuple
 
 
 # Read dataframe
-data = pd.read_excel("data/mpd2020.xlsx", sheet_name="Full data")
+
+data_url = "https://github.com/QuantEcon/lecture-python-intro/raw/main/lectures/datasets/mpd2020.xlsx"
+data = pd.read_excel(data_url, sheet_name="Full data")
+data.head()
 
 # check the number of unique countries in the dataset
 countries = data.country.unique()
