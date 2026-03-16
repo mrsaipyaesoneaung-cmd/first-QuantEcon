@@ -199,3 +199,6 @@ def draw_events(events, ax):
 # Draw events
 draw_events(events, ax)
 plt.show()
+
+
+# Focusing on the US and UK
