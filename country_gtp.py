@@ -67,7 +67,9 @@ ax.set_ylabel("international dollars")
 ax.set_xlabel("year")
 plt.show()
 
-### comparing the US, UK and China
+###
+###comparing the US, UK and China
+###
 
 
 def draw_interp_plots(
@@ -171,7 +173,7 @@ events = [
         1.1,
     ),
     Event(
-        (1929, 1939), ylim + ylim * 0.04, "the Great Depression\n(1929–1939)", "grey", 1
+        (1929, 1939), ylim + ylim * 0.04, "the Great Depression\n(1929-1939)", "grey", 1
     ),
     Event(
         (1978, 1979),
@@ -204,4 +206,245 @@ draw_events(events, ax)
 plt.show()
 
 
+# Focusing on China
+
+fig, ax = plt.subplots(dpi=300, figsize=(10, 6))
+
+country = ["CHN"]
+draw_interp_plots(
+    gdp_pc[country].loc[1600:2000],
+    country,
+    "international dollars",
+    "year",
+    color_mapping,
+    code_to_name,
+    2,
+    True,
+    ax,
+)
+
+ylim = ax.get_ylim()[1]
+
+events = [
+    Event(
+        (1655, 1684),
+        ylim + ylim * 0.06,
+        "Closed-door Policy\n(1655-1684)",
+        "tab:orange",
+        1,
+    ),
+    Event(
+        (1760, 1840),
+        ylim + ylim * 0.06,
+        "Industrial Revolution\n(1760-1840)",
+        "grey",
+        1,
+    ),
+    Event(
+        (1839, 1842), ylim + ylim * 0.2, "First Opium War\n(1839–1842)", "tab:red", 1.07
+    ),
+    Event(
+        (1861, 1895),
+        ylim + ylim * 0.4,
+        "Self-Strengthening Movement\n(1861–1895)",
+        "tab:blue",
+        1.14,
+    ),
+    Event((1939, 1945), ylim + ylim * 0.06, "WW 2\n(1939-1945)", "tab:red", 1),
+    Event(
+        (1948, 1950),
+        ylim + ylim * 0.23,
+        "Founding of PRC\n(1949)",
+        color_mapping["CHN"],
+        1.08,
+    ),
+    Event(
+        (1958, 1962),
+        ylim + ylim * 0.5,
+        "Great Leap Forward\n(1958-1962)",
+        "tab:orange",
+        1.18,
+    ),
+    Event(
+        (1978, 1979),
+        ylim + ylim * 0.7,
+        "Reform and Opening-up\n(1978-1979)",
+        "tab:blue",
+        1.24,
+    ),
+]
+
+# Draw events
+draw_events(events, ax)
+plt.show()
+
 # Focusing on the US and UK
+
+fig, ax = plt.subplots(dpi=300, figsize=(10, 6))
+
+country = ["GBR", "USA"]
+draw_interp_plots(
+    gdp_pc[country].loc[1500:2000],
+    country,
+    "international dollars",
+    "year",
+    color_mapping,
+    code_to_name,
+    2,
+    True,
+    ax,
+)
+
+ylim = ax.get_ylim()[1]
+
+# Create a list of data points
+events = [
+    Event(
+        (1651, 1651), ylim + ylim * 0.15, "Navigation Act (UK)\n(1651)", "tab:orange", 1
+    ),
+    Event(
+        (1765, 1791),
+        ylim + ylim * 0.15,
+        "American Revolution\n(1765-1791)",
+        color_mapping["USA"],
+        1,
+    ),
+    Event(
+        (1760, 1840),
+        ylim + ylim * 0.6,
+        "Industrial Revolution\n(1760-1840)",
+        "grey",
+        1.08,
+    ),
+    Event(
+        (1848, 1850),
+        ylim + ylim * 1.1,
+        "Repeal of Navigation Act (UK)\n(1849)",
+        "tab:blue",
+        1.14,
+    ),
+    Event(
+        (1861, 1865),
+        ylim + ylim * 1.8,
+        "American Civil War\n(1861-1865)",
+        color_mapping["USA"],
+        1.21,
+    ),
+    Event((1914, 1918), ylim + ylim * 0.15, "WW 1\n(1914-1918)", "tab:red", 1),
+    Event(
+        (1929, 1939),
+        ylim + ylim * 0.6,
+        "the Great Depression\n(1929–1939)",
+        "grey",
+        1.08,
+    ),
+    Event((1939, 1945), ylim + ylim * 1.1, "WW 2\n(1939-1945)", "tab:red", 1.14),
+]
+
+# Draw events
+draw_events(events, ax)
+plt.show()
+
+###
+### GDp growth
+###
+
+data = pd.read_excel(data_url, sheet_name="Full data")
+data.set_index(["countrycode", "year"], inplace=True)
+data["gdp"] = data["gdppc"] * data["pop"]
+gdp = data["gdp"].unstack("countrycode")
+
+# Early industrialization (1820 to 1940)
+
+fig, ax = plt.subplots(dpi=300)
+country = ["CHN", "SUN", "JPN", "GBR", "USA"]
+start_year, end_year = (1820, 1945)
+draw_interp_plots(
+    gdp[country].loc[start_year:end_year],
+    country,
+    "international dollars",
+    "year",
+    color_mapping,
+    code_to_name,
+    2,
+    False,
+    ax,
+)
+
+# Constructing a plot similar to Tooze’s (British as Empire not as the UK)
+
+BEM = ["GBR", "IND", "AUS", "NZL", "CAN", "ZAF"]
+# Interpolate incomplete time-series
+gdp["BEM"] = (
+    gdp[BEM].loc[start_year - 1 : end_year].interpolate(method="index").sum(axis=1)
+)
+
+# Define colour mapping and name for BEM
+color_mapping["BEM"] = color_mapping[
+    "GBR"
+]  # Set the color to be the same as Great Britain
+# Add British Empire to code_to_name
+bem = pd.DataFrame(["British Empire"], index=["BEM"], columns=["country"])
+bem.index.name = "countrycode"
+code_to_name = pd.concat([code_to_name, bem])
+
+fig, ax = plt.subplots(dpi=300)
+country = ["DEU", "USA", "SUN", "BEM", "FRA", "JPN"]
+start_year, end_year = (1821, 1945)
+draw_interp_plots(
+    gdp[country].loc[start_year:end_year],
+    country,
+    "international dollars",
+    "year",
+    color_mapping,
+    code_to_name,
+    2,
+    False,
+    ax,
+)
+
+plt.savefig(
+    "./_static/lecture_specific/long_run_growth/tooze_ch1_graph.png",
+    dpi=300,
+    bbox_inches="tight",
+)
+plt.show()
+
+#
+### The modern era (1950 to 2020)
+#
+
+fig, ax = plt.subplots(dpi=300)
+country = ["CHN", "SUN", "JPN", "GBR", "USA"]
+start_year, end_year = (1950, 2020)
+draw_interp_plots(
+    gdp[country].loc[start_year:end_year],
+    country,
+    "international dollars",
+    "year",
+    color_mapping,
+    code_to_name,
+    2,
+    False,
+    ax,
+)
+
+#
+### Regional analysis
+#
+
+data = pd.read_excel(
+    data_url, sheet_name="Regional data", header=(0, 1, 2), index_col=0
+)
+data.columns = data.columns.droplevel(level=2)
+
+regionalgdp_pc = data["gdppc_2011"].copy()
+regionalgdp_pc.index = pd.to_datetime(regionalgdp_pc.index, format="%Y")
+
+regionalgdp_pc.interpolate(method="time", inplace=True)
+
+fig, ax = plt.subplots(dpi=300)
+regionalgdp_pc.plot(ax=ax, xlabel="year", lw=2, ylabel="international dollars")
+ax.set_yscale("log")
+plt.legend(loc="lower center", ncol=3, bbox_to_anchor=[0.5, -0.5])
+plt.show()
