@@ -404,7 +404,7 @@ draw_interp_plots(
 )
 
 plt.savefig(
-    "./_static/lecture_specific/long_run_growth/tooze_ch1_graph.png",
+    "output/tooze_ch1_graph.png",
     dpi=300,
     bbox_inches="tight",
 )
